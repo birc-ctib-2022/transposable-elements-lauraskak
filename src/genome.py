@@ -92,13 +92,12 @@ class ListGenome(Genome):
     Implements the Genome interface using Python's built-in lists
     """
 
-    def __init__(self, n: int):
+    def __init__(self, n: int): #DONE
         """Create a new genome with length n."""
         self.genome_list = ["-"] * n
         self.TE_dict = {}
             
-
-    def insert_te(self, pos: int, length: int) -> int:
+    def insert_te(self, pos: int, TE_length: int) -> int: #DONE
         """
         Insert a new transposable element.
 
@@ -111,26 +110,32 @@ class ListGenome(Genome):
 
         Returns a new ID for the transposable element.
         """
-        TE = ["A"] * length
+        TE = ["A"] * TE_length
         
+        # The following checks if the TE insertion collides with an existing active TE
         if self[pos] == "A" and self[pos+1] == "A":
             for TE_id in self.TE_dict:
-                #The following identifies the active TE to be disabled.
+                #The following identifies the active TE to be disabled and disables it.
                 if self.TE_dict[TE_id][0] < pos and pos < self.TE_dict[TE_id][1]:
                     self = self.disable_te(TE_id) 
                     break
                     
-        self = self[:pos] + TE + self[pos:]
+        # the following updates the genome list to include the TE
+        self.genome_list = self.genome_list[:pos] + TE + self.genome_list[pos:]
         
-        #update TE_dict
-        
+        #updates TE_dict
         for TE_id in self.TE_dict:
-            pass
-               
-                
-        return -1
+            if self.TE_dict[TE_id][0] > pos:
+                self.TE_dict[TE_id][0] += TE_length
+                self.TE_dict[TE_id][1] += TE_length
+        
+        ## Inputs the new TE in the TE_id dict with the start and end positions. 
+        previous_max_id = max(self.TE_dict.keys)
+        self.TE_dict[previous_max_id+1] = [pos + 1, pos + TE_length]
+        
+        return previous_max_id+1
 
-    def copy_te(self, te: int, offset: int) -> int | None:
+    def copy_te(self, TE_id: int, offset: int) -> int | None: #DONE
         """
         Copy a transposable element.
 
@@ -144,29 +149,64 @@ class ListGenome(Genome):
 
         If te is not active, return None (and do not copy it).
         """
-        ...  # FIXME
-
-    def disable_te(self, te: int) -> None:
-        """
-        Disable a TE.
+        
+        if self.TE_dict[TE_id] == None:
+            return
+        else:
+            start = self.TE_dict[TE_id][0]
+            end = self.TE_dict[TE_id][1]
+            TE_length = end - start + 1
+            genome_length = len(self)
+            
+            if offset > 0:
+                ## Situation where the offset is positive
+                pos = (end + offset) % genome_length
+                self.insert_te(pos, TE_length)
+            
+            elif offset < 0:
+                ## Situation where the offset is negative
+                pos = genome_length + start + offset - 2
+                
+            else: 
+                pos = end
+                self.insert_te(pos, TE_length)
+                
+    def disable_te(self, TE_id: int) -> None: #DONE
+        """ Disable a TE.
 
         If te is an active TE, then make it inactive. Inactive
         TEs are already inactive, so there is no need to do anything
         for those.
         """
-        ...  # FIXME
+        #lav A'er om til X'er
+        start = self.TE_dict[TE_id][0]
+        end = self.TE_dict[TE_id][1]
+        TE_length = end - start + 1
+        
+        inactive_TE = ["X"] * TE_length
+        
+        # Updates the genome list
+        self.genome_list = self.genome_list[:start] + inactive_TE + self.genome_list[end+1:]
+        
+        # Inactivates the TE in the TE_id dict
+        self.TE_dict[TE_id] = None
 
-    def active_tes(self) -> list[int]:
+    def active_tes(self) -> list[int]: # DONE
         """Get the active TE IDs."""
-        ...  # FIXME
-        return []
+        
+        active_TEs = []
+        
+        for TE_id in self.TE_dict:
+            if self.TE_dict[TE_id] != None:
+                active_TEs.append(TE_id)
+                
+        return active_TEs
 
-    def __len__(self) -> int:
+    def __len__(self) -> int: #DONE
         """Current length of the genome."""
-        ...  # FIXME
-        return 0
+        return len(self.genome_list)
 
-    def __str__(self) -> str:
+    def __str__(self) -> str: #DONE
         """
         Return a string representation of the genome.
 
@@ -178,7 +218,7 @@ class ListGenome(Genome):
         represented with the character '-', active TEs with 'A', and disabled
         TEs with 'x'.
         """
-        return "FIXME"
+        return "".join(self.genome_list)
 
 
 class Link_element():
@@ -284,13 +324,3 @@ class LinkedListGenome(Genome):
 
 
 DNA = ListGenome(10)
-
-print(DNA.genome_list)
-
-value = [1,3]
-
-value[0] += 5
-value[1] += 5
-
-print(value)
-
