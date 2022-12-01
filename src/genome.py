@@ -112,6 +112,11 @@ class ListGenome(Genome):
         """
         TE = ["A"] * TE_length
         
+        genome_length = len(self)
+        
+        # Makes sure that pos is a position in the genome.
+        pos = pos % genome_length
+        
         # The following checks if the TE insertion collides with an existing active TE
         if self.genome_list[pos] == "A" and self.genome_list[pos+1] == "A":
             for TE_id in self.TE_dict:
@@ -222,11 +227,11 @@ class ListGenome(Genome):
 
 
 class Link_element():
-    def __init__(self, nucleotide, next):
-        self.nucleotide = nucleotide
+    def __init__(self, previous, next):
         self.next = next
-        
-            
+        self.previous = previous
+        self.is_TE = False
+
 
 class LinkedListGenome(Genome):
     """
@@ -239,19 +244,23 @@ class LinkedListGenome(Genome):
 
     def __init__(self, n: int):
         """Create a new genome with length n."""
+        assert n > 0       
         
-        self.head = Link_element("-", None)
+        self.head = Link_element(None, None)
         
-        next_elem = self.head
+        previous_elem = self.head
+        link = self.head
+        
         count = n-1
         
         while count > 0:
-            link = Link_element("-", next_elem)
-            
-            next_elem = link
+            link = Link_element(previous_elem, None)
+            previous_elem.next = link
+            previous_elem = link
             count -= 1
         
-        (self.head).next = next_elem
+        self.head.previous = link
+        link.next = self.head
         
 
     def insert_te(self, pos: int, length: int) -> int:
@@ -268,11 +277,66 @@ class LinkedListGenome(Genome):
         Returns a new ID for the transposable element.
         """
         
-         
-        ...  # FIXME
-        return -1
+        # What should the new TE_id be?
+        
+        link = self.head
+        
+        max_id = 0
+        
+        looped = False
+        
+        while not looped:
+            
+            if link.is_TE: 
+                if link.TE_id > max_id:
+                    max_id = link.TE_id
+            
+            if link.next == self.head:
+                looped = True
+                    
+            link = link.next
+        
+        # Now max_id is the maximal id count, so the next id should be max_id + 1
+        
+        link = self.head
+        
+        pos_count = 0
+        
+        while pos_count != pos:
+      
+            link = link.next
+            pos_count += 1 
+            
+        #now the link is the position which the TE should be inserted after
+        
+        
+        # Disable if the Te is about to be put into the middle of another TE
+        
+        if link.is_TE and link.next.is_TE:
+            if link.TE_id == link.next.TE_id:
+                self.disable_te(link.TE_id)
+        
+        ## Inserts the new TE
+        previous_elem = link
+        old_next = link.next
+        
+        TE_count = 0
+        
+        while TE_count != pos:
+            
+            link = Link_element(previous_elem, None)
+            link.is_TE = True
+            link.TE_id = max_id+1
+            previous_elem.next = link
+            previous_elem = link
+            
+            TE_count += 1
+        
+        link.next = old_next
+        
+        
 
-    def copy_te(self, te: int, offset: int) -> int | None:
+    def copy_te(self, TE_id: int, offset: int) -> int | None:
         """
         Copy a transposable element.
 
@@ -286,9 +350,15 @@ class LinkedListGenome(Genome):
 
         If te is not active, return None (and do not copy it).
         """
-        ...  # FIXME
+        ## If offset is positive
+        # count from the head, so you get the correct position index to put into insert_te.
+        # find the position where the link has that TE_id, but link.next does not. 
+        # Then terminate the while loop.
+        # from the position at the end of the TE, count the offset-amount of links away
+        # from the TE end and then use insert_te and put in the position count.
+                
 
-    def disable_te(self, te: int) -> None:
+    def disable_te(self, TE_id: int): #DONE
         """
         Disable a TE.
 
@@ -296,19 +366,58 @@ class LinkedListGenome(Genome):
         TEs are already inactive, so there is no need to do anything
         for those.
         """
-        ...  # FIXME
-
-    def active_tes(self) -> list[int]:
+        link = self.head
+        
+        looped = False
+        
+        while not looped:
+            
+            if link.TE_id == TE_id:
+                link.is_active = False
+            
+            if link.next == self.head:
+                looped = True
+                
+            link = link.next
+                
+    
+    def active_tes(self) -> list[int] : #DONE
         """Get the active TE IDs."""
-        # FIXME
-        return []
+        
+        link = self.head
+        ## Since self.head cannot be a TE, we can ignore this
+        
+        last_TE_id = None
+        active_TE_list = []
+        
+        looped = False
+        
+        while not looped:
+            
+            if link.is_TE and link.TE_id != last_TE_id:
+                active_TE_list.append(link.TE_id)
+                last_TE_id = link.TE_id
+            
+            if link.next == self.head:
+                looped = True
+            
+            link = link.next
+                
+        return active_TE_list
 
-    def __len__(self) -> int:
+    def __len__(self) -> int: #DONE
         """Current length of the genome."""
-        # FIXME
-        return 0
+        
+        link = self.head
+        count = 1
+        
+        while link.next != self.head:
+            link = link.next
+            count += 1
+            
+        return count
 
-    def __str__(self) -> str:
+    def __str__(self) -> str: #DONE
         """
         Return a string representation of the genome.
 
@@ -320,7 +429,30 @@ class LinkedListGenome(Genome):
         represented with the character '-', active TEs with 'A', and disabled
         TEs with 'x'.
         """
-        return "FIXME"
+        
+        genome = ""
+        
+        link = self.head
+        
+        looped = False
+        
+        while not looped:
+            
+            if link.is_TE:
+                if link.is_active:
+                    genome += "A"
+                else:
+                    genome += "X"
+            else:
+                genome += "-"
+                
+            if link.next == self.head:
+                looped = True
+            
+            link = link.next
+            
+        return genome
 
 
-DNA = ListGenome(10)
+#DNA = ListGenome(10)
+#len(DNA)
