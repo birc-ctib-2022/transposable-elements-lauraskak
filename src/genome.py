@@ -113,7 +113,7 @@ class ListGenome(Genome):
         TE = ["A"] * TE_length
         
         # The following checks if the TE insertion collides with an existing active TE
-        if self[pos] == "A" and self[pos+1] == "A":
+        if self.genome_list[pos] == "A" and self.genome_list[pos+1] == "A":
             for TE_id in self.TE_dict:
                 #The following identifies the active TE to be disabled and disables it.
                 if self.TE_dict[TE_id][0] < pos and pos < self.TE_dict[TE_id][1]:
