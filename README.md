@@ -15,11 +15,14 @@ A genome should be represented as a class that implements the following methods:
 
 ```python
 class Genome(ABC):
-    """Representation of a circular enome."""
+    """Representation of a circular Genome."""
 
     def __init__(self, n: int):
         """Create a genome of size n."""
         ...  # not implemented yet
+
+        
+        
 
     @abstractmethod
     def insert_te(self, pos: int, length: int) -> int:
@@ -92,9 +95,9 @@ class Genome(ABC):
 
 ```
 
-The `ABC` and `@abstractmethod` just means that this class is not something you can use by itself, but that another class must implement the details. In `src/genome.py` you will find templates for a Python list tand a linked list implementation (without the actual implementation, because you have to implement them).
+The `ABC` and `@abstractmethod` just means that this class is not something you can use by itself, but that another class must implement the details. In `src/genome.py` you will find templates for a Python list and a linked list implementation (without the actual implementation, because you have to implement them).
 
-You are free to implement the genome classes however you want, and using whateer auxilary data structures you desire, as long as one uses a Python list with an element for each nucleotide and the other a linked list with a link for each nucleotide. If you want to implement a third (or fourth or fifth...) version, you are very welcome to do so as well.
+You are free to implement the genome classes however you want, and using whatever auxilary data structures you desire, as long as one uses a Python list with an element for each nucleotide and the other a linked list with a link for each nucleotide. If you want to implement a third (or fourth or fifth...) version, you are very welcome to do so as well.
 
 ## Complexity
 

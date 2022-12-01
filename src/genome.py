@@ -9,7 +9,7 @@ from abc import (
 
 
 class Genome(ABC):
-    """Representation of a circular enome."""
+    """Representation of a circular Genome."""
 
     def __init__(self, n: int):
         """Create a genome of size n."""
@@ -94,7 +94,9 @@ class ListGenome(Genome):
 
     def __init__(self, n: int):
         """Create a new genome with length n."""
-        ...  # FIXME
+        self.genome_list = ["-"] * n
+        self.TE_dict = {}
+            
 
     def insert_te(self, pos: int, length: int) -> int:
         """
@@ -109,7 +111,23 @@ class ListGenome(Genome):
 
         Returns a new ID for the transposable element.
         """
-        ...  # FIXME
+        TE = ["A"] * length
+        
+        if self[pos] == "A" and self[pos+1] == "A":
+            for TE_id in self.TE_dict:
+                #The following identifies the active TE to be disabled.
+                if self.TE_dict[TE_id][0] < pos and pos < self.TE_dict[TE_id][1]:
+                    self = self.disable_te(TE_id) 
+                    break
+                    
+        self = self[:pos] + TE + self[pos:]
+        
+        #update TE_dict
+        
+        for TE_id in self.TE_dict:
+            pass
+               
+                
         return -1
 
     def copy_te(self, te: int, offset: int) -> int | None:
@@ -162,6 +180,13 @@ class ListGenome(Genome):
         """
         return "FIXME"
 
+
+class Link_element():
+    def __init__(self, nucleotide, next):
+        self.nucleotide = nucleotide
+        self.next = next
+        
+            
 
 class LinkedListGenome(Genome):
     """
@@ -169,10 +194,25 @@ class LinkedListGenome(Genome):
 
     Implements the Genome interface using linked lists.
     """
+    
+
 
     def __init__(self, n: int):
         """Create a new genome with length n."""
-        ...  # FIXME
+        
+        self.head = Link_element("-", None)
+        
+        next_elem = self.head
+        count = n-1
+        
+        while count > 0:
+            link = Link_element("-", next_elem)
+            
+            next_elem = link
+            count -= 1
+        
+        (self.head).next = next_elem
+        
 
     def insert_te(self, pos: int, length: int) -> int:
         """
@@ -187,6 +227,8 @@ class LinkedListGenome(Genome):
 
         Returns a new ID for the transposable element.
         """
+        
+         
         ...  # FIXME
         return -1
 
@@ -239,3 +281,16 @@ class LinkedListGenome(Genome):
         TEs with 'x'.
         """
         return "FIXME"
+
+
+DNA = ListGenome(10)
+
+print(DNA.genome_list)
+
+value = [1,3]
+
+value[0] += 5
+value[1] += 5
+
+print(value)
+
