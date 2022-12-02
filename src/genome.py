@@ -118,22 +118,24 @@ class ListGenome(Genome):
 
         Returns a new ID for the transposable element.
         """
-        assert pos >= 0
+        assert pos >= 1
         
         TE = ["A"] * TE_length
         
         genome_length = len(self)
         
         # Makes sure that pos is a position in the genome.
-        pos = pos % genome_length
+        pos = pos % genome_length - 1
         
         # The following checks if the TE insertion collides with an existing active TE
         if self.genome_list[pos] == "A" and self.genome_list[pos+1] == "A":
             for TE_id in self.TE_dict:
                 #The following identifies the active TE to be disabled and disables it.
-                if self.TE_dict[TE_id][0] <= pos and pos < self.TE_dict[TE_id][1]:
-                    self.disable_te(TE_id)
-                    break
+                
+                if self.TE_dict[TE_id] != None:
+                    if self.TE_dict[TE_id][0] <= pos and pos < self.TE_dict[TE_id][1] and self.TE_dict[TE_id] != None:
+                        self.disable_te(TE_id)
+                        break
                 
         # The following updates the genome list to include the TE
         self.genome_list = self.genome_list[:pos+1] + TE + self.genome_list[pos+1:]
@@ -183,17 +185,32 @@ class ListGenome(Genome):
             genome_length = len(self)
             
             if offset > 0:
-                ## Situation where the offset is positive
-                pos = (end + offset) % genome_length
-                self.insert_te(pos, TE_length)
+                ## Situation where the offset is positive, so the TE should be moved downstream
+                
+                if start + offset >= genome_length:
+                    pos = (start + offset) % genome_length - 1
+                    new_id = self.insert_te(pos, TE_length)
+                else: 
+                    pos = start + offset
+                    new_id = self.insert_te(pos, TE_length)
             
             elif offset < 0:
-                ## Situation where the offset is negative
-                pos = genome_length + start + offset - 2
+                ## Situation where the offset is negative, so the TE should be moved upstream
+                
+                if start-1 <= -offset:
+                    diff = - offset - start
+                    pos = genome_length - diff
+                    new_id = self.insert_te(pos, TE_length)
+                else:
+                    pos = start + offset - 1
+                    new_id = self.insert_te(pos, TE_length)
                 
             else: 
+                # If the offset is 0
                 pos = end
-                self.insert_te(pos, TE_length)
+                new_id = self.insert_te(pos, TE_length)
+                
+            return new_id
                 
     def disable_te(self, TE_id: int) -> None: #DONE
         """ Disable a TE.
@@ -212,7 +229,7 @@ class ListGenome(Genome):
             end = self.TE_dict[TE_id][1]
             TE_length = end - start + 1
             
-            inactive_TE = ["X"] * TE_length
+            inactive_TE = ["x"] * TE_length
             
             # Updates the genome list
             self.genome_list = self.genome_list[:start] + inactive_TE + self.genome_list[end+1:]
@@ -326,7 +343,7 @@ class LinkedListGenome(Genome):
         
         link = self.head
         
-        pos_count = 0
+        pos_count = 1
         
         while pos_count != pos:
       
@@ -361,6 +378,8 @@ class LinkedListGenome(Genome):
         
         link.next = old_next
         
+        return new_id
+        
         
 
     def copy_te(self, TE_id: int, offset: int):
@@ -378,14 +397,6 @@ class LinkedListGenome(Genome):
         If te is not active, return None (and do not copy it).
         """
         
-        
-        ## If offset is positive
-        # count from the head, so you get the correct position index to put into insert_te.
-        # find the position where the link has that TE_id, but link.next does not. 
-        # Then terminate the while loop.
-        # from the position at the end of the TE, count the offset-amount of links away
-        # from the TE end and then use insert_te and put in the position count.
-        
         ## Finds out how long the TE is
         
         link = self.head
@@ -397,6 +408,8 @@ class LinkedListGenome(Genome):
         pos_count = 0
         
         TE_start_pos = None
+        
+        genome_length = len(self)
                 
         while not looped:
             if link.is_TE:
@@ -416,8 +429,7 @@ class LinkedListGenome(Genome):
             link = link.next
             
             pos_count += 1
-        
-        TE_end_pos = TE_start_pos + TE_length - 1
+            
         
         # now TE_length should be the length of the TE to be copied.
         # and TE start and end is defined.
@@ -425,14 +437,23 @@ class LinkedListGenome(Genome):
         ## If the offset is positive
         
         if offset >= 0:
-            insert_pos = TE_end_pos + offset
-            self.insert_te(insert_pos, TE_length)
+            insert_pos = TE_start_pos + offset % genome_length
+            new_id = self.insert_te(insert_pos, TE_length)
             
-        ## If the offset is negative
+        ## If the offset is negative or 0
         
         else:
-            insert_pos = TE_start_pos + offset - 1
-            self.insert_te(insert_pos, TE_length)
+            if -offset >= TE_start_pos - 1:
+                diff = - offset - TE_start_pos
+                insert_pos = genome_length - diff
+                new_id = self.insert_te(insert_pos, TE_length)
+            else:
+                insert_pos = TE_start_pos - offset - 1
+                print(insert_pos, TE_length)
+                new_id = self.insert_te(insert_pos, TE_length)
+                
+        
+        return new_id
             
 
     def disable_te(self, TE_id: int): #DONE
@@ -523,7 +544,7 @@ class LinkedListGenome(Genome):
                 if link.is_active:
                     genome += "A"
                 else:
-                    genome += "X"
+                    genome += "x"
             else:
                 genome += "-"
                 
@@ -612,5 +633,40 @@ class LinkedListGenome(Genome):
 # DNA.insert_te(6, 2)
 # print("Length of the seq: ", len(DNA))
 # print("print of the sequence: ", str(DNA))
+
+
+### Thomas' test
+
+# genome = LinkedListGenome(20)
+# #genome = ListGenome(20)
+
+# assert str(genome) == "--------------------"
+# assert genome.active_tes() == []
+
+# assert 1 == genome.insert_te(5, 10)   # Insert te 1
+# assert str(genome) == "-----AAAAAAAAAA---------------"
+# assert genome.active_tes() == [1]
+
+# assert 2 == genome.insert_te(10, 10)  # Disable 1 but make 2 active
+# assert str(genome) == "-----xxxxxAAAAAAAAAAxxxxx---------------"
+# assert genome.active_tes() == [2]
+
+# # Make TE 3 20 to the right of the start of 2
+# assert 3 == genome.copy_te(2, 20)
+# assert str(genome) == "-----xxxxxAAAAAAAAAAxxxxx-----AAAAAAAAAA----------"
+# assert genome.active_tes() == [2, 3]
+
+# # Make TE 4 15 to the leftt of the start of 2
+# assert 4 == genome.copy_te(2, -15)
+# assert str(genome) == "-----xxxxxAAAAAAAAAAxxxxx-----AAAAAAAAAA-----AAAAAAAAAA-----"
+# assert genome.active_tes() == [2, 3, 4]
+
+# assert 5 == genome.insert_te(50, 10)
+# assert str(genome) == "-----xxxxxAAAAAAAAAAxxxxx-----AAAAAAAAAA-----xxxxxAAAAAAAAAAxxxxx-----"
+# assert genome.active_tes() == [2, 3, 5]
+
+# genome.disable_te(3)
+# assert str(genome) == "-----xxxxxAAAAAAAAAAxxxxx-----xxxxxxxxxx-----xxxxxAAAAAAAAAAxxxxx-----"
+# assert genome.active_tes() == [2, 5]
 
 
