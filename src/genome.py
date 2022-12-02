@@ -332,9 +332,7 @@ class LinkedListGenome(Genome):
         
         if link.is_TE and link.next.is_TE:
             if link.TE_id == link.next.TE_id:
-                print(link.TE_id, " is about to be disabled")
                 self.disable_te(link.TE_id)
-                print(str(self))
         
         ## Inserts the new TE
         previous_elem = link
