@@ -32,7 +32,7 @@ class Genome(ABC):
         ...  # not implemented yet
 
     @abstractmethod
-    def copy_te(self, te: int, offset: int) -> int | None:
+    def copy_te(self, te: int, offset: int):
         """
         Copy a transposable element.
 
@@ -60,7 +60,7 @@ class Genome(ABC):
         ...  # not implemented yet
 
     @abstractmethod
-    def active_tes(self) -> list[int]:
+    def active_tes(self) -> list:
         """Get the active TE IDs."""
         ...  # not implemented yet
 
@@ -110,6 +110,8 @@ class ListGenome(Genome):
 
         Returns a new ID for the transposable element.
         """
+        assert pos >= 0
+        
         TE = ["A"] * TE_length
         
         genome_length = len(self)
@@ -121,26 +123,35 @@ class ListGenome(Genome):
         if self.genome_list[pos] == "A" and self.genome_list[pos+1] == "A":
             for TE_id in self.TE_dict:
                 #The following identifies the active TE to be disabled and disables it.
-                if self.TE_dict[TE_id][0] < pos and pos < self.TE_dict[TE_id][1]:
-                    self = self.disable_te(TE_id) 
+                if self.TE_dict[TE_id][0] <= pos and pos < self.TE_dict[TE_id][1]:
+                    self.disable_te(TE_id)
                     break
-                    
-        # the following updates the genome list to include the TE
-        self.genome_list = self.genome_list[:pos] + TE + self.genome_list[pos:]
+                
+        # The following updates the genome list to include the TE
+        self.genome_list = self.genome_list[:pos+1] + TE + self.genome_list[pos+1:]
         
-        #updates TE_dict
+        
+        # Updates TE_dict
         for TE_id in self.TE_dict:
-            if self.TE_dict[TE_id][0] > pos:
-                self.TE_dict[TE_id][0] += TE_length
-                self.TE_dict[TE_id][1] += TE_length
+            if self.TE_dict[TE_id] != None:
+                if self.TE_dict[TE_id][0] > pos:
+                    self.TE_dict[TE_id][0] += TE_length
+                    self.TE_dict[TE_id][1] += TE_length
+    
         
         ## Inputs the new TE in the TE_id dict with the start and end positions. 
-        previous_max_id = max(self.TE_dict.keys)
-        self.TE_dict[previous_max_id+1] = [pos + 1, pos + TE_length]
+        if self.TE_dict == {}:
+            new_id = 1
+        else:
+            previous_max_id = max(self.TE_dict.keys())
+            new_id = previous_max_id + 1
+            
+        self.TE_dict[new_id] = [pos + 1, pos + TE_length]
         
-        return previous_max_id+1
+        return new_id
+    
 
-    def copy_te(self, TE_id: int, offset: int) -> int | None: #DONE
+    def copy_te(self, TE_id: int, offset: int): #DONE
         """
         Copy a transposable element.
 
@@ -183,20 +194,25 @@ class ListGenome(Genome):
         TEs are already inactive, so there is no need to do anything
         for those.
         """
-        #lav A'er om til X'er
-        start = self.TE_dict[TE_id][0]
-        end = self.TE_dict[TE_id][1]
-        TE_length = end - start + 1
+        if TE_id not in self.TE_dict:
+            # Makes sure it does nothing if the TE_id doesn't exist
+            return
         
-        inactive_TE = ["X"] * TE_length
-        
-        # Updates the genome list
-        self.genome_list = self.genome_list[:start] + inactive_TE + self.genome_list[end+1:]
-        
-        # Inactivates the TE in the TE_id dict
-        self.TE_dict[TE_id] = None
+        else:
+            #lav A'er om til X'er
+            start = self.TE_dict[TE_id][0]
+            end = self.TE_dict[TE_id][1]
+            TE_length = end - start + 1
+            
+            inactive_TE = ["X"] * TE_length
+            
+            # Updates the genome list
+            self.genome_list = self.genome_list[:start] + inactive_TE + self.genome_list[end+1:]
+            
+            # Inactivates the TE in the TE_id dict
+            self.TE_dict[TE_id] = None
 
-    def active_tes(self) -> list[int]: # DONE
+    def active_tes(self) -> list: # DONE
         """Get the active TE IDs."""
         
         active_TEs = []
@@ -263,7 +279,7 @@ class LinkedListGenome(Genome):
         link.next = self.head
         
 
-    def insert_te(self, pos: int, length: int) -> int:
+    def insert_te(self, pos: int, TE_length: int) -> int:
         """
         Insert a new transposable element.
 
@@ -296,7 +312,9 @@ class LinkedListGenome(Genome):
                     
             link = link.next
         
-        # Now max_id is the maximal id count, so the next id should be max_id + 1
+        new_id = max_id + 1
+        
+        # Now max_id is the maximal id count and new_id is the name for the TE to be inserted
         
         link = self.head
         
@@ -307,14 +325,16 @@ class LinkedListGenome(Genome):
             link = link.next
             pos_count += 1 
             
-        #now the link is the position which the TE should be inserted after
+        # Now the link is the position which the TE should be inserted after
         
         
-        # Disable if the Te is about to be put into the middle of another TE
+        # Disable if the TE is about to be put into the middle of another TE
         
         if link.is_TE and link.next.is_TE:
             if link.TE_id == link.next.TE_id:
+                print(link.TE_id, " is about to be disabled")
                 self.disable_te(link.TE_id)
+                print(str(self))
         
         ## Inserts the new TE
         previous_elem = link
@@ -322,11 +342,12 @@ class LinkedListGenome(Genome):
         
         TE_count = 0
         
-        while TE_count != pos:
+        while TE_count != TE_length:
             
             link = Link_element(previous_elem, None)
             link.is_TE = True
-            link.TE_id = max_id+1
+            link.TE_id = new_id
+            link.is_active = True
             previous_elem.next = link
             previous_elem = link
             
@@ -336,7 +357,7 @@ class LinkedListGenome(Genome):
         
         
 
-    def copy_te(self, TE_id: int, offset: int) -> int | None:
+    def copy_te(self, TE_id: int, offset: int):
         """
         Copy a transposable element.
 
@@ -350,13 +371,63 @@ class LinkedListGenome(Genome):
 
         If te is not active, return None (and do not copy it).
         """
+        
+        
         ## If offset is positive
         # count from the head, so you get the correct position index to put into insert_te.
         # find the position where the link has that TE_id, but link.next does not. 
         # Then terminate the while loop.
         # from the position at the end of the TE, count the offset-amount of links away
         # from the TE end and then use insert_te and put in the position count.
+        
+        ## Finds out how long the TE is
+        
+        link = self.head
+        
+        looped = False
+        
+        TE_length = 0
+        
+        pos_count = 0
+        
+        TE_start_pos = None
                 
+        while not looped:
+            if link.is_TE:
+                if link.TE_id == TE_id:
+                    if link.is_active:
+                        if TE_start_pos == None:
+                            # Marks the TE's start position
+                            TE_start_pos = pos_count
+                        TE_length += 1
+                    else:
+                        # Stops the operation if the TE about to be copied is inaktive
+                        return
+            
+            if link.next == self.head:
+                looped = True
+            
+            link = link.next
+            
+            pos_count += 1
+        
+        TE_end_pos = TE_start_pos + TE_length - 1
+        
+        # now TE_length should be the length of the TE to be copied.
+        # and TE start and end is defined.
+        
+        ## If the offset is positive
+        
+        if offset >= 0:
+            insert_pos = TE_end_pos + offset
+            self.insert_te(insert_pos, TE_length)
+            
+        ## If the offset is negative
+        
+        else:
+            insert_pos = TE_start_pos + offset - 1
+            self.insert_te(insert_pos, TE_length)
+            
 
     def disable_te(self, TE_id: int): #DONE
         """
@@ -372,16 +443,16 @@ class LinkedListGenome(Genome):
         
         while not looped:
             
-            if link.TE_id == TE_id:
-                link.is_active = False
+            if link.is_TE:
+                if link.TE_id == TE_id:
+                    link.is_active = False
             
             if link.next == self.head:
                 looped = True
                 
-            link = link.next
-                
+            link = link.next       
     
-    def active_tes(self) -> list[int] : #DONE
+    def active_tes(self) -> list : #DONE
         """Get the active TE IDs."""
         
         link = self.head
@@ -394,9 +465,13 @@ class LinkedListGenome(Genome):
         
         while not looped:
             
-            if link.is_TE and link.TE_id != last_TE_id:
-                active_TE_list.append(link.TE_id)
-                last_TE_id = link.TE_id
+            if link.is_TE:
+                if link.TE_id != last_TE_id:
+                    
+                    if link.is_active:
+                        active_TE_list.append(link.TE_id)
+                        
+                    last_TE_id = link.TE_id
             
             if link.next == self.head:
                 looped = True
@@ -454,5 +529,82 @@ class LinkedListGenome(Genome):
         return genome
 
 
-#DNA = ListGenome(10)
-#len(DNA)
+### CHECK OF ListGenome functions
+
+# DNA = ListGenome(10)
+
+# print("Genome list: ", DNA.genome_list)
+# print("TE dict: ", DNA.TE_dict)
+# print("Length of the seq: ", len(DNA))
+# print("print of the sequence: ", str(DNA))
+
+# print("inserts 3 in after pos 4")
+# DNA.insert_te(2, 3)
+
+# print("inserts 5 in after pos 4")
+# DNA.insert_te(4, 5)
+
+# print("inserts copy 5 after TE 2")
+# DNA.copy_te(2, 5)
+
+# print("Genome list: ", DNA.genome_list)
+# print("TE dict: ", DNA.TE_dict)
+# print("Length of the seq: ", len(DNA))
+# print("print of the sequence: ", str(DNA))
+
+# print("expected: ")
+# print("---XXAAAAAX----AAAAA---")
+# print("result: ")
+# print(str(DNA))
+
+
+### CHECK OF LinkedListGenome functions
+
+# DNA = LinkedListGenome(10)
+
+# print("Length of the seq: ", len(DNA))
+# print("print of the sequence: ", str(DNA))
+
+# print("inserts 3 after pos 6")
+# DNA.insert_te(6, 3)
+# print("Length of the seq: ", len(DNA))
+# print("print of the sequence: ", str(DNA))
+
+# print("Disable TE id that does not exist")
+# DNA.disable_te(3)
+# print("Length of the seq: ", len(DNA))
+# print("print of the sequence: ", str(DNA))
+
+# print("inserts 4 after pos 7")
+# DNA.insert_te(7, 4)
+# print("Length of the seq: ", len(DNA))
+# print("print of the sequence: ", str(DNA))
+
+# print("Prints the active TE ids")
+# print(DNA.active_tes())
+
+# print("inserts TE of length 6 after pos 15, so achually at pos 21 or pos 4")
+# DNA.insert_te(21, 6)
+# print("Length of the seq: ", len(DNA))
+# print("print of the sequence: ", str(DNA))
+
+# print("copies id 2 with offset of 5")
+# DNA.copy_te(2, 5)
+# print("Length of the seq: ", len(DNA))
+# print("print of the sequence: ", str(DNA))
+
+# print("Prints the active TE ids")
+# print(DNA.active_tes())
+
+
+# print("copies id 4 with offset of -2")
+# DNA.copy_te(4, -2)
+# print("Length of the seq: ", len(DNA))
+# print("print of the sequence: ", str(DNA))
+
+# print("inserts TE of length 2 at pos 6")
+# DNA.insert_te(6, 2)
+# print("Length of the seq: ", len(DNA))
+# print("print of the sequence: ", str(DNA))
+
+
