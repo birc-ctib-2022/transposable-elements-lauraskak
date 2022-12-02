@@ -29,7 +29,9 @@ class Genome(ABC):
 
         Returns a new ID for the transposable element.
         """
-        ...  # not implemented yet
+        
+        return self.insert_te(pos, length)
+    
 
     @abstractmethod
     def copy_te(self, te: int, offset: int):
@@ -46,7 +48,9 @@ class Genome(ABC):
 
         If te is not active, return None (and do not copy it).
         """
-        ...  # not implemented yet
+        
+        self.copy_te(te, offset)
+        
 
     @abstractmethod
     def disable_te(self, te: int) -> None:
@@ -57,17 +61,21 @@ class Genome(ABC):
         TEs are already inactive, so there is no need to do anything
         for those.
         """
-        ...  # not implemented yet
+        
+        self.disable_te(te)
+        
 
     @abstractmethod
     def active_tes(self) -> list:
         """Get the active TE IDs."""
-        ...  # not implemented yet
+        
+        return self.active_tes()
+        
 
     @abstractmethod
     def __len__(self) -> int:
         """Get the current length of the genome."""
-        ...  # not implemented yet
+        return len(self)
 
     @abstractmethod
     def __str__(self) -> str:
@@ -82,7 +90,7 @@ class Genome(ABC):
         represented with the character '-', active TEs with 'A', and disabled
         TEs with 'x'.
         """
-        ...  # not implemented yet
+        return str(self)
 
 
 class ListGenome(Genome):
