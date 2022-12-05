@@ -200,8 +200,8 @@ class ListGenome(Genome):
             TE_length = end - start + 1
             genome_length = len(self)
             
-            #new_pos = start + offset
-            new_pos = start + offset - 1
+            new_pos = start + offset
+            #new_pos = start + offset - 1
             
             if new_pos != 0:
                 new_id = self.insert_te(new_pos, TE_length)
