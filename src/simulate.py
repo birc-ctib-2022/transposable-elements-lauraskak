@@ -59,39 +59,39 @@ def sim_te(n: int, k: int,
                       len(active) * theta_cpy,
                       len(active) * theta_dis)
         
-        # match Ops.sample(op_weights):
-        #     case Ops.INSERT:
-        #         pos = rand.randint(0, len(genome))
-        #         length = np.random.geometric(1/theta.te_len)
-        #         genome.insert_te(pos, length)
+        match Ops.sample(op_weights):
+            case Ops.INSERT:
+                pos = rand.randint(0, len(genome))
+                length = np.random.geometric(1/theta.te_len)
+                genome.insert_te(pos, length)
 
-        #     case Ops.COPY:
-        #         te = rand.choice(active)
-        #         offset = np.random.geometric(1/theta.te_offset)
-        #         if rand.random() < 0.5:
-        #             offset = -offset
-        #         genome.copy_te(te, offset)
+            case Ops.COPY:
+                te = rand.choice(active)
+                offset = np.random.geometric(1/theta.te_offset)
+                if rand.random() < 0.5:
+                    offset = -offset
+                genome.copy_te(te, offset)
 
-        #     case Ops.DISABLE:
-        #         te = rand.choice(active)
-        #         genome.disable_te(te)
+            case Ops.DISABLE:
+                te = rand.choice(active)
+                genome.disable_te(te)
         
-        if Ops.sample(op_weights) == Ops.INSERT:
-            pos = rand.randint(0, len(genome))
-            length = np.random.geometric(1/theta.te_len)
-            genome.insert_te(pos, length)
-            #print("insert", pos, length, str(genome))
-        elif Ops.sample(op_weights) == Ops.COPY:
-            te = rand.choice(active)
-            offset = np.random.geometric(1/theta.te_offset)
-            if rand.random() < 0.5:
-                offset = -offset
-            genome.copy_te(te, offset)
-            #print("copy", pos, length, str(genome))
-        elif Ops.sample(op_weights) == Ops.DISABLE:
-            te = rand.choice(active)
-            genome.disable_te(te)
-            #print("disable", pos, length, str(genome))
+        # if Ops.sample(op_weights) == Ops.INSERT:
+        #     pos = rand.randint(0, len(genome))
+        #     length = np.random.geometric(1/theta.te_len)
+        #     genome.insert_te(pos, length)
+        #     #print("insert", pos, length, str(genome))
+        # elif Ops.sample(op_weights) == Ops.COPY:
+        #     te = rand.choice(active)
+        #     offset = np.random.geometric(1/theta.te_offset)
+        #     if rand.random() < 0.5:
+        #         offset = -offset
+        #     genome.copy_te(te, offset)
+        #     #print("copy", pos, length, str(genome))
+        # elif Ops.sample(op_weights) == Ops.DISABLE:
+        #     te = rand.choice(active)
+        #     genome.disable_te(te)
+        #     #print("disable", pos, length, str(genome))
             
 
     return str(genome)
