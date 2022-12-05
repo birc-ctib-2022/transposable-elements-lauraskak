@@ -492,7 +492,8 @@ class LinkedListGenome(Genome):
         # and TE start and end is defined.
         
         
-        insert_pos = TE_start_pos + offset - 1
+        #insert_pos = TE_start_pos + offset
+        insert_pos = TE_start_pos + offset - 5
         
         if insert_pos > 0:
             new_id = self.insert_te(insert_pos, TE_length)
