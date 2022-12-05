@@ -200,8 +200,8 @@ class ListGenome(Genome):
             TE_length = end - start + 1
             genome_length = len(self)
             
+            #new_pos = start + offset
             new_pos = start + offset
-            #new_pos = start + offset - 1
             
             if new_pos != 0:
                 new_id = self.insert_te(new_pos, TE_length)
@@ -211,64 +211,6 @@ class ListGenome(Genome):
             
                 
             return new_id
-
-    # def copy_te(self, TE_id: int, offset: int): #DONE
-    #     """
-    #     Copy a transposable element.
-
-    #     Copy the transposable element te to an offset from its current
-    #     location.
-
-    #     The offset can be positive or negative; if positive the te is copied
-    #     upwards and if negative it is copied downwards. If the offset moves
-    #     the copy left of index 0 or right of the largest index, it should
-    #     wrap around, since the genome is circular.
-
-    #     If te is not active, return None (and do not copy it).
-    #     """
-        
-    #     if self.TE_dict[TE_id] == None:
-    #         return
-    #     else:
-    #         start = self.TE_dict[TE_id][0] - 1
-    #         end = self.TE_dict[TE_id][1] - 1 
-    #         TE_length = end - start + 1
-    #         genome_length = len(self)
-            
-    #         new_pos = start + offset 
-            
-    #         if new_pos != 0:
-    #             new_id = self.insert_te(new_pos, TE_length)
-    #         else:
-    #             new_id = self.insert_te(genome_length, TE_length)
-            
-    #         # if offset > 0:
-    #         #     ## Situation where the offset is positive, so the TE should be moved downstream
-                
-    #         #     if start + offset >= genome_length:
-    #         #         pos = (start + offset) % genome_length - 1
-    #         #         new_id = self.insert_te(pos, TE_length)
-    #         #     else: 
-    #         #         pos = start + offset
-    #         #         new_id = self.insert_te(pos, TE_length)
-            
-    #         # elif offset < 0:
-    #         #     ## Situation where the offset is negative, so the TE should be moved upstream
-                
-    #         #     if start-1 <= -offset:
-    #         #         diff = - offset - start
-    #         #         pos = genome_length - diff
-    #         #         new_id = self.insert_te(pos, TE_length)
-    #         #     else:
-    #         #         pos = start + offset - 1
-    #         #         new_id = self.insert_te(pos, TE_length)
-                
-    #         # else: 
-    #         #     # If the offset is 0
-    #         #     pos = end+1
-    #         #     new_id = self.insert_te(pos, TE_length)
-                
-    #         return new_id
                 
     def disable_te(self, TE_id: int) -> None: #DONE
         """ Disable a TE.
@@ -494,7 +436,7 @@ class LinkedListGenome(Genome):
         
         ###### ER VED AT TESTE OM LIVET ER LIGEGYLDIGT.
         #insert_pos = TE_start_pos + offset
-        insert_pos = TE_start_pos + offset - 5
+        insert_pos = TE_start_pos + offset - 1
         
         if insert_pos > 0:
             new_id = self.insert_te(insert_pos, TE_length)
@@ -502,24 +444,6 @@ class LinkedListGenome(Genome):
         else:
             insert_pos = genome_length + (insert_pos % genome_length)
             new_id = self.insert_te(insert_pos, TE_length)
-        
-        # ## If the offset is positive
-        
-        # if offset >= 0:
-        #     insert_pos = TE_start_pos + offset % genome_length
-        #     new_id = self.insert_te(insert_pos, TE_length)
-            
-        # ## If the offset is negative or 0
-        
-        # else:
-        #     if -offset >= TE_start_pos - 1:
-        #         diff = - offset - TE_start_pos
-        #         insert_pos = genome_length - diff
-        #         new_id = self.insert_te(insert_pos, TE_length)
-        #     else:
-        #         insert_pos = TE_start_pos - offset - 1
-        #         new_id = self.insert_te(insert_pos, TE_length)
-                
         
         return new_id
             
