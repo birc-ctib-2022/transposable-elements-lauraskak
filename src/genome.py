@@ -118,17 +118,29 @@ class ListGenome(Genome):
 
         Returns a new ID for the transposable element.
         """
-        assert pos >= 1
+        assert pos != 0
         
         TE = ["A"] * TE_length
         
         genome_length = len(self)
         
         # Makes sure that pos is a position in the genome.
-        pos = pos % genome_length - 1
         
+        if pos != genome_length:
+            pos = pos % genome_length
+        
+        # The following converts the pos to a python index
+        
+        the_python_pos = pos-1
+        
+        if pos == genome_length:
+            next_pos = 0
+        else:
+            next_pos = the_python_pos + 1 
+            
         # The following checks if the TE insertion collides with an existing active TE
-        if self.genome_list[pos] == "A" and self.genome_list[pos+1] == "A":
+        
+        if self.genome_list[the_python_pos] == "A" and self.genome_list[next_pos] == "A":
             for TE_id in self.TE_dict:
                 #The following identifies the active TE to be disabled and disables it.
                 
@@ -138,8 +150,12 @@ class ListGenome(Genome):
                         break
                 
         # The following updates the genome list to include the TE
-        self.genome_list = self.genome_list[:pos+1] + TE + self.genome_list[pos+1:]
-        
+        #self.genome_list = self.genome_list[:pos+1] + TE + self.genome_list[pos+1:]
+        if pos+1 != genome_length:
+            self.genome_list = self.genome_list[:pos] + TE + self.genome_list[pos:]
+        else: 
+            self.genome_list = self.genome_list[:pos+1] + TE
+        #self.genome_list = self.genome_list[:pos] + TE + self.genome_list[pos:]
         
         # Updates TE_dict
         for TE_id in self.TE_dict:
@@ -179,36 +195,43 @@ class ListGenome(Genome):
         if self.TE_dict[TE_id] == None:
             return
         else:
-            start = self.TE_dict[TE_id][0]
-            end = self.TE_dict[TE_id][1]
+            start = self.TE_dict[TE_id][0] - 1
+            end = self.TE_dict[TE_id][1] - 1 
             TE_length = end - start + 1
             genome_length = len(self)
             
-            if offset > 0:
-                ## Situation where the offset is positive, so the TE should be moved downstream
-                
-                if start + offset >= genome_length:
-                    pos = (start + offset) % genome_length - 1
-                    new_id = self.insert_te(pos, TE_length)
-                else: 
-                    pos = start + offset
-                    new_id = self.insert_te(pos, TE_length)
+            new_pos = start + offset 
             
-            elif offset < 0:
-                ## Situation where the offset is negative, so the TE should be moved upstream
+            if new_pos != 0:
+                new_id = self.insert_te(new_pos, TE_length)
+            else:
+                new_id = self.insert_te(genome_length, TE_length)
+            
+            # if offset > 0:
+            #     ## Situation where the offset is positive, so the TE should be moved downstream
                 
-                if start-1 <= -offset:
-                    diff = - offset - start
-                    pos = genome_length - diff
-                    new_id = self.insert_te(pos, TE_length)
-                else:
-                    pos = start + offset - 1
-                    new_id = self.insert_te(pos, TE_length)
+            #     if start + offset >= genome_length:
+            #         pos = (start + offset) % genome_length - 1
+            #         new_id = self.insert_te(pos, TE_length)
+            #     else: 
+            #         pos = start + offset
+            #         new_id = self.insert_te(pos, TE_length)
+            
+            # elif offset < 0:
+            #     ## Situation where the offset is negative, so the TE should be moved upstream
                 
-            else: 
-                # If the offset is 0
-                pos = end
-                new_id = self.insert_te(pos, TE_length)
+            #     if start-1 <= -offset:
+            #         diff = - offset - start
+            #         pos = genome_length - diff
+            #         new_id = self.insert_te(pos, TE_length)
+            #     else:
+            #         pos = start + offset - 1
+            #         new_id = self.insert_te(pos, TE_length)
+                
+            # else: 
+            #     # If the offset is 0
+            #     pos = end+1
+            #     new_id = self.insert_te(pos, TE_length)
                 
             return new_id
                 
@@ -225,8 +248,8 @@ class ListGenome(Genome):
         
         else:
             #lav A'er om til X'er
-            start = self.TE_dict[TE_id][0]
-            end = self.TE_dict[TE_id][1]
+            start = self.TE_dict[TE_id][0]-1
+            end = self.TE_dict[TE_id][1]-1
             TE_length = end - start + 1
             
             inactive_TE = ["x"] * TE_length
@@ -449,7 +472,6 @@ class LinkedListGenome(Genome):
                 new_id = self.insert_te(insert_pos, TE_length)
             else:
                 insert_pos = TE_start_pos - offset - 1
-                print(insert_pos, TE_length)
                 new_id = self.insert_te(insert_pos, TE_length)
                 
         
@@ -555,6 +577,88 @@ class LinkedListGenome(Genome):
             
         return genome
 
+### CHECK OF ListGenome functions
+
+## Check if it insert correctly
+genome = ListGenome(10)
+
+assert str(genome) == "----------"
+
+genome.insert_te(3, 5)
+
+assert str(genome) == "---AAAAA-------"
+
+## Check if it insert correctly, when the pos is larger than the length of the seq
+genome = ListGenome(10)
+
+assert str(genome) == "----------"
+
+genome.insert_te(13, 5)
+
+assert str(genome) == "---AAAAA-------"
+
+## Check if it insert correctly, at the end of the sequence
+genome = ListGenome(10)
+
+assert str(genome) == "----------"
+
+genome.insert_te(10, 5)
+
+assert str(genome) == "----------AAAAA"
+
+## Check if it insert correctly, at the start of the sequence
+genome = ListGenome(10)
+
+assert str(genome) == "----------"
+
+genome.insert_te(1, 5)
+
+assert str(genome) == "-AAAAA---------"
+
+
+## BURDE DEN KUNNE TAGE 0?...
+
+## Check if it copies correctly in there a negative offset
+genome = ListGenome(10)
+
+assert str(genome) == "----------"
+
+genome.insert_te(5, 5)
+
+assert str(genome) == "-----AAAAA-----"
+
+genome.copy_te(1, 6)
+
+assert str(genome) == "-----AAAAA-AAAAA----"
+
+genome.copy_te(1, -2)
+
+assert str(genome) == "---AAAAA--AAAAA-AAAAA----"
+
+# checks if it silences correctly
+
+genome = ListGenome(10)
+
+assert str(genome) == "----------"
+
+genome.insert_te(5, 5)
+
+assert str(genome) == "-----AAAAA-----"
+
+genome.copy_te(1, 2)
+
+assert str(genome) == "-----xxAAAAAxxx-----"
+
+genome.copy_te(2, -6)
+
+assert str(genome) == "-AAAAA----xxAAAAAxxx-----"
+
+genome.copy_te(2, 12)
+
+
+
+
+
 
 ### CHECK OF ListGenome functions
 
@@ -585,7 +689,7 @@ class LinkedListGenome(Genome):
 # print(str(DNA))
 
 
-### CHECK OF LinkedListGenome functions
+# ## CHECK OF LinkedListGenome functions
 
 # DNA = LinkedListGenome(10)
 
@@ -637,8 +741,8 @@ class LinkedListGenome(Genome):
 
 ### Thomas' test
 
-genome = LinkedListGenome(20)
-#genome = ListGenome(20)
+#genome = LinkedListGenome(20)
+genome = ListGenome(20)
 
 assert str(genome) == "--------------------"
 assert genome.active_tes() == []
@@ -668,8 +772,4 @@ assert genome.active_tes() == [2, 3, 5]
 genome.disable_te(3)
 assert str(genome) == "-----xxxxxAAAAAAAAAAxxxxx-----xxxxxxxxxx-----xxxxxAAAAAAAAAAxxxxx-----"
 assert genome.active_tes() == [2, 5]
-
-
-
-
 
