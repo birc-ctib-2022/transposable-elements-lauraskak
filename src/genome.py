@@ -290,14 +290,14 @@ class ListGenome(Genome):
         return "".join(self.genome_list)
 
 
-# class Link_element():
-#     def __init__(self, previous, next):
-#         self.next = next
-#         self.previous = previous
-#         self.is_TE = False
+class Link_element():
+    def __init__(self, previous, next):
+        self.next = next
+        self.previous = previous
+        self.is_TE = False
 
 
-# class LinkedListGenome(Genome):
+class LinkedListGenome(Genome):
     """
     Representation of a genome.
 
@@ -428,7 +428,7 @@ class ListGenome(Genome):
         
         TE_length = 0
         
-        pos_count = 0
+        pos_count = 1
         
         TE_start_pos = None
         
@@ -452,27 +452,37 @@ class ListGenome(Genome):
             link = link.next
             
             pos_count += 1
-            
+        
         
         # now TE_length should be the length of the TE to be copied.
         # and TE start and end is defined.
         
-        ## If the offset is positive
         
-        if offset >= 0:
-            insert_pos = TE_start_pos + offset % genome_length
+        insert_pos = TE_start_pos + offset -1
+        
+        if insert_pos > 0:
             new_id = self.insert_te(insert_pos, TE_length)
             
-        ## If the offset is negative or 0
-        
         else:
-            if -offset >= TE_start_pos - 1:
-                diff = - offset - TE_start_pos
-                insert_pos = genome_length - diff
-                new_id = self.insert_te(insert_pos, TE_length)
-            else:
-                insert_pos = TE_start_pos - offset - 1
-                new_id = self.insert_te(insert_pos, TE_length)
+            insert_pos = genome_length + (insert_pos % genome_length)
+            new_id = self.insert_te(insert_pos, TE_length)
+        
+        # ## If the offset is positive
+        
+        # if offset >= 0:
+        #     insert_pos = TE_start_pos + offset % genome_length
+        #     new_id = self.insert_te(insert_pos, TE_length)
+            
+        # ## If the offset is negative or 0
+        
+        # else:
+        #     if -offset >= TE_start_pos - 1:
+        #         diff = - offset - TE_start_pos
+        #         insert_pos = genome_length - diff
+        #         new_id = self.insert_te(insert_pos, TE_length)
+        #     else:
+        #         insert_pos = TE_start_pos - offset - 1
+        #         new_id = self.insert_te(insert_pos, TE_length)
                 
         
         return new_id
@@ -577,10 +587,10 @@ class ListGenome(Genome):
             
         return genome
 
-### CHECK OF ListGenome functions
+### CHECK OF LinkedListGenome functions
 
 ## Check if it insert correctly
-genome = ListGenome(10)
+genome = LinkedListGenome(10)
 
 assert str(genome) == "----------"
 
@@ -589,7 +599,7 @@ genome.insert_te(3, 5)
 assert str(genome) == "---AAAAA-------"
 
 ## Check if it insert correctly, when the pos is larger than the length of the seq
-genome = ListGenome(10)
+genome = LinkedListGenome(10)
 
 assert str(genome) == "----------"
 
@@ -598,7 +608,7 @@ genome.insert_te(13, 5)
 assert str(genome) == "---AAAAA-------"
 
 ## Check if it insert correctly, at the end of the sequence
-genome = ListGenome(10)
+genome = LinkedListGenome(10)
 
 assert str(genome) == "----------"
 
@@ -607,7 +617,7 @@ genome.insert_te(10, 5)
 assert str(genome) == "----------AAAAA"
 
 ## Check if it insert correctly, at the start of the sequence
-genome = ListGenome(10)
+genome = LinkedListGenome(10)
 
 assert str(genome) == "----------"
 
@@ -619,7 +629,7 @@ assert str(genome) == "-AAAAA---------"
 ## BURDE DEN KUNNE TAGE 0?...
 
 ## Check if it copies correctly in there a negative offset
-genome = ListGenome(10)
+genome = LinkedListGenome(10)
 
 assert str(genome) == "----------"
 
@@ -631,13 +641,17 @@ genome.copy_te(1, 6)
 
 assert str(genome) == "-----AAAAA-AAAAA----"
 
-genome.copy_te(1, -2)
+genome.copy_te(1, 2)
 
-assert str(genome) == "---AAAAA--AAAAA-AAAAA----"
+assert str(genome) == "-----xxAAAAAxxx-AAAAA----"
+
+genome.copy_te(3, -2)
+
+assert str(genome) == "-----AAAAAxxAAAAAxxx-AAAAA----"
 
 # checks if it silences correctly
 
-genome = ListGenome(10)
+genome = LinkedListGenome(10)
 
 assert str(genome) == "----------"
 
@@ -649,11 +663,107 @@ genome.copy_te(1, 2)
 
 assert str(genome) == "-----xxAAAAAxxx-----"
 
-genome.copy_te(2, -6)
+genome.copy_te(2, -2)
 
-assert str(genome) == "-AAAAA----xxAAAAAxxx-----"
+assert str(genome) == "-----AAAAAxxAAAAAxxx-----"
+
+genome.copy_te(3, -6)
+
+assert str(genome) == "-----AAAAAxxAAAAAxxx----AAAAA-"
 
 genome.copy_te(2, 12)
+
+## checks disable function
+
+genome = LinkedListGenome(10)
+
+assert str(genome) == "----------"
+
+genome.insert_te(5, 5)
+
+assert str(genome) == "-----AAAAA-----"
+
+genome.disable_te(1)
+
+
+
+# ### CHECK OF ListGenome functions
+
+# ## Check if it insert correctly
+# genome = ListGenome(10)
+
+# assert str(genome) == "----------"
+
+# genome.insert_te(3, 5)
+
+# assert str(genome) == "---AAAAA-------"
+
+# ## Check if it insert correctly, when the pos is larger than the length of the seq
+# genome = ListGenome(10)
+
+# assert str(genome) == "----------"
+
+# genome.insert_te(13, 5)
+
+# assert str(genome) == "---AAAAA-------"
+
+# ## Check if it insert correctly, at the end of the sequence
+# genome = ListGenome(10)
+
+# assert str(genome) == "----------"
+
+# genome.insert_te(10, 5)
+
+# assert str(genome) == "----------AAAAA"
+
+# ## Check if it insert correctly, at the start of the sequence
+# genome = ListGenome(10)
+
+# assert str(genome) == "----------"
+
+# genome.insert_te(1, 5)
+
+# assert str(genome) == "-AAAAA---------"
+
+
+# ## BURDE DEN KUNNE TAGE 0?...
+
+# ## Check if it copies correctly in there a negative offset
+# genome = ListGenome(10)
+
+# assert str(genome) == "----------"
+
+# genome.insert_te(5, 5)
+
+# assert str(genome) == "-----AAAAA-----"
+
+# genome.copy_te(1, 6)
+
+# assert str(genome) == "-----AAAAA-AAAAA----"
+
+# genome.copy_te(1, -2)
+
+# assert str(genome) == "---AAAAA--AAAAA-AAAAA----"
+
+# # checks if it silences correctly
+
+# genome = ListGenome(10)
+
+# assert str(genome) == "----------"
+
+# genome.insert_te(5, 5)
+
+# assert str(genome) == "-----AAAAA-----"
+
+# genome.copy_te(1, 2)
+
+# assert str(genome) == "-----xxAAAAAxxx-----"
+
+# genome.copy_te(2, -6)
+
+# assert str(genome) == "-AAAAA----xxAAAAAxxx-----"
+
+# genome.copy_te(2, 12)
 
 
 
@@ -741,8 +851,8 @@ genome.copy_te(2, 12)
 
 ### Thomas' test
 
-#genome = LinkedListGenome(20)
-genome = ListGenome(20)
+genome = LinkedListGenome(20)
+#genome = ListGenome(20)
 
 assert str(genome) == "--------------------"
 assert genome.active_tes() == []
