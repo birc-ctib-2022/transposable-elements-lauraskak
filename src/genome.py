@@ -200,7 +200,8 @@ class ListGenome(Genome):
             TE_length = end - start + 1
             genome_length = len(self)
             
-            new_pos = start + offset - 1
+            new_pos = start + offset
+            #new_pos = start + offset - 1
             
             if new_pos != 0:
                 new_id = self.insert_te(new_pos, TE_length)
@@ -491,7 +492,7 @@ class LinkedListGenome(Genome):
         # now TE_length should be the length of the TE to be copied.
         # and TE start and end is defined.
         
-        
+        ###### ER VED AT TESTE OM LIVET ER LIGEGYLDIGT.
         #insert_pos = TE_start_pos + offset
         insert_pos = TE_start_pos + offset - 5
         
