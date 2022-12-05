@@ -96,10 +96,6 @@ def sim_te(n: int, k: int,
 
     return str(genome)
 
-print(sim_te(30, 10, seed = 1984, theta = SimParams(te_len=10)))
-print("expected:---AAAA------------x--xAAAAxxx------AAAA-xxxxAAAA------")
-
-
 if __name__ == '__main__':
     import timeit
     start_time = timeit.default_timer()
