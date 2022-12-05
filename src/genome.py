@@ -884,37 +884,37 @@ genome.disable_te(1)
 # print("print of the sequence: ", str(DNA))
 
 
-### Thomas' test
+# ### Thomas' test
 
-genome = LinkedListGenome(20)
-#genome = ListGenome(20)
+# genome = LinkedListGenome(20)
+# #genome = ListGenome(20)
 
-assert str(genome) == "--------------------"
-assert genome.active_tes() == []
+# assert str(genome) == "--------------------"
+# assert genome.active_tes() == []
 
-assert 1 == genome.insert_te(5, 10)   # Insert te 1
-assert str(genome) == "-----AAAAAAAAAA---------------"
-assert genome.active_tes() == [1]
+# assert 1 == genome.insert_te(5, 10)   # Insert te 1
+# assert str(genome) == "-----AAAAAAAAAA---------------"
+# assert genome.active_tes() == [1]
 
-assert 2 == genome.insert_te(10, 10)  # Disable 1 but make 2 active
-assert str(genome) == "-----xxxxxAAAAAAAAAAxxxxx---------------"
-assert genome.active_tes() == [2]
+# assert 2 == genome.insert_te(10, 10)  # Disable 1 but make 2 active
+# assert str(genome) == "-----xxxxxAAAAAAAAAAxxxxx---------------"
+# assert genome.active_tes() == [2]
 
-# Make TE 3 20 to the right of the start of 2
-assert 3 == genome.copy_te(2, 20)
-assert str(genome) == "-----xxxxxAAAAAAAAAAxxxxx-----AAAAAAAAAA----------"
-assert genome.active_tes() == [2, 3]
+# # Make TE 3 20 to the right of the start of 2
+# assert 3 == genome.copy_te(2, 20)
+# assert str(genome) == "-----xxxxxAAAAAAAAAAxxxxx-----AAAAAAAAAA----------"
+# assert genome.active_tes() == [2, 3]
 
-# Make TE 4 15 to the leftt of the start of 2
-assert 4 == genome.copy_te(2, -15)
-assert str(genome) == "-----xxxxxAAAAAAAAAAxxxxx-----AAAAAAAAAA-----AAAAAAAAAA-----"
-assert genome.active_tes() == [2, 3, 4]
+# # Make TE 4 15 to the leftt of the start of 2
+# assert 4 == genome.copy_te(2, -15)
+# assert str(genome) == "-----xxxxxAAAAAAAAAAxxxxx-----AAAAAAAAAA-----AAAAAAAAAA-----"
+# assert genome.active_tes() == [2, 3, 4]
 
-assert 5 == genome.insert_te(50, 10)
-assert str(genome) == "-----xxxxxAAAAAAAAAAxxxxx-----AAAAAAAAAA-----xxxxxAAAAAAAAAAxxxxx-----"
-assert genome.active_tes() == [2, 3, 5]
+# assert 5 == genome.insert_te(50, 10)
+# assert str(genome) == "-----xxxxxAAAAAAAAAAxxxxx-----AAAAAAAAAA-----xxxxxAAAAAAAAAAxxxxx-----"
+# assert genome.active_tes() == [2, 3, 5]
 
-genome.disable_te(3)
-assert str(genome) == "-----xxxxxAAAAAAAAAAxxxxx-----xxxxxxxxxx-----xxxxxAAAAAAAAAAxxxxx-----"
-assert genome.active_tes() == [2, 5]
+# genome.disable_te(3)
+# assert str(genome) == "-----xxxxxAAAAAAAAAAxxxxx-----xxxxxxxxxx-----xxxxxAAAAAAAAAAxxxxx-----"
+# assert genome.active_tes() == [2, 5]
 
