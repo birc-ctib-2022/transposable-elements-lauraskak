@@ -624,101 +624,101 @@ class LinkedListGenome(Genome):
 
 ### CHECK OF LinkedListGenome functions
 
-## Check if it insert correctly
-genome = LinkedListGenome(10)
+# ## Check if it insert correctly
+# genome = LinkedListGenome(10)
 
-assert str(genome) == "----------"
+# assert str(genome) == "----------"
 
-genome.insert_te(3, 5)
+# genome.insert_te(3, 5)
 
-assert str(genome) == "---AAAAA-------"
+# assert str(genome) == "---AAAAA-------"
 
-## Check if it insert correctly, when the pos is larger than the length of the seq
-genome = LinkedListGenome(10)
+# ## Check if it insert correctly, when the pos is larger than the length of the seq
+# genome = LinkedListGenome(10)
 
-assert str(genome) == "----------"
+# assert str(genome) == "----------"
 
-genome.insert_te(13, 5)
+# genome.insert_te(13, 5)
 
-assert str(genome) == "---AAAAA-------"
+# assert str(genome) == "---AAAAA-------"
 
-## Check if it insert correctly, at the end of the sequence
-genome = LinkedListGenome(10)
+# ## Check if it insert correctly, at the end of the sequence
+# genome = LinkedListGenome(10)
 
-assert str(genome) == "----------"
+# assert str(genome) == "----------"
 
-genome.insert_te(10, 5)
+# genome.insert_te(10, 5)
 
-assert str(genome) == "----------AAAAA"
+# assert str(genome) == "----------AAAAA"
 
-## Check if it insert correctly, at the start of the sequence
-genome = LinkedListGenome(10)
+# ## Check if it insert correctly, at the start of the sequence
+# genome = LinkedListGenome(10)
 
-assert str(genome) == "----------"
+# assert str(genome) == "----------"
 
-genome.insert_te(1, 5)
+# genome.insert_te(1, 5)
 
-assert str(genome) == "-AAAAA---------"
+# assert str(genome) == "-AAAAA---------"
 
 
-## BURDE DEN KUNNE TAGE 0?...
+# ## BURDE DEN KUNNE TAGE 0?...
 
-## Check if it copies correctly in there a negative offset
-genome = LinkedListGenome(10)
+# ## Check if it copies correctly in there a negative offset
+# genome = LinkedListGenome(10)
 
-assert str(genome) == "----------"
+# assert str(genome) == "----------"
 
-genome.insert_te(5, 5)
+# genome.insert_te(5, 5)
 
-assert str(genome) == "-----AAAAA-----"
+# assert str(genome) == "-----AAAAA-----"
 
-genome.copy_te(1, 6)
+# genome.copy_te(1, 6)
 
-assert str(genome) == "-----AAAAA-AAAAA----"
+# assert str(genome) == "-----AAAAA-AAAAA----"
 
-genome.copy_te(1, 2)
+# genome.copy_te(1, 2)
 
-assert str(genome) == "-----xxAAAAAxxx-AAAAA----"
+# assert str(genome) == "-----xxAAAAAxxx-AAAAA----"
 
-genome.copy_te(3, -2)
+# genome.copy_te(3, -2)
 
-assert str(genome) == "-----AAAAAxxAAAAAxxx-AAAAA----"
+# assert str(genome) == "-----AAAAAxxAAAAAxxx-AAAAA----"
 
-# checks if it silences correctly
+# # checks if it silences correctly
 
-genome = LinkedListGenome(10)
+# genome = LinkedListGenome(10)
 
-assert str(genome) == "----------"
+# assert str(genome) == "----------"
 
-genome.insert_te(5, 5)
+# genome.insert_te(5, 5)
 
-assert str(genome) == "-----AAAAA-----"
+# assert str(genome) == "-----AAAAA-----"
 
-genome.copy_te(1, 2)
+# genome.copy_te(1, 2)
 
-assert str(genome) == "-----xxAAAAAxxx-----"
+# assert str(genome) == "-----xxAAAAAxxx-----"
 
-genome.copy_te(2, -2)
+# genome.copy_te(2, -2)
 
-assert str(genome) == "-----AAAAAxxAAAAAxxx-----"
+# assert str(genome) == "-----AAAAAxxAAAAAxxx-----"
 
-genome.copy_te(3, -6)
+# genome.copy_te(3, -6)
 
-assert str(genome) == "-----AAAAAxxAAAAAxxx----AAAAA-"
+# assert str(genome) == "-----AAAAAxxAAAAAxxx----AAAAA-"
 
-genome.copy_te(2, 12)
+# genome.copy_te(2, 12)
 
-## checks disable function
+# ## checks disable function
 
-genome = LinkedListGenome(10)
+# genome = LinkedListGenome(10)
 
-assert str(genome) == "----------"
+# assert str(genome) == "----------"
 
-genome.insert_te(5, 5)
+# genome.insert_te(5, 5)
 
-assert str(genome) == "-----AAAAA-----"
+# assert str(genome) == "-----AAAAA-----"
 
-genome.disable_te(1)
+# genome.disable_te(1)
 
 
 
