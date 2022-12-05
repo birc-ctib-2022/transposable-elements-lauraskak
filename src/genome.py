@@ -290,14 +290,14 @@ class ListGenome(Genome):
         return "".join(self.genome_list)
 
 
-class Link_element():
-    def __init__(self, previous, next):
-        self.next = next
-        self.previous = previous
-        self.is_TE = False
+# class Link_element():
+#     def __init__(self, previous, next):
+#         self.next = next
+#         self.previous = previous
+#         self.is_TE = False
 
 
-class LinkedListGenome(Genome):
+# class LinkedListGenome(Genome):
     """
     Representation of a genome.
 
