@@ -150,12 +150,10 @@ class ListGenome(Genome):
                         break
                 
         # The following updates the genome list to include the TE
-        #self.genome_list = self.genome_list[:pos+1] + TE + self.genome_list[pos+1:]
         if pos+1 != genome_length:
             self.genome_list = self.genome_list[:pos] + TE + self.genome_list[pos:]
         else: 
             self.genome_list = self.genome_list[:pos+1] + TE
-        #self.genome_list = self.genome_list[:pos] + TE + self.genome_list[pos:]
         
         # Updates TE_dict
         for TE_id in self.TE_dict:
@@ -200,7 +198,6 @@ class ListGenome(Genome):
             TE_length = end - start + 1
             genome_length = len(self)
             
-            #new_pos = start + offset
             new_pos = start + offset
             
             if new_pos != 0:
@@ -208,8 +205,6 @@ class ListGenome(Genome):
             else:
                 new_id = self.insert_te(genome_length, TE_length)
             
-            
-                
             return new_id
                 
     def disable_te(self, TE_id: int) -> None: #DONE

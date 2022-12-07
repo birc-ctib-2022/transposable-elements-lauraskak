@@ -105,4 +105,25 @@ When you have implemented the two (or more) classes, describe the complexity of 
 
 **FIXME: OPERATION COMPLEXITY**
 
+ListGenome:
+
+    - init(): The complexity is O(1)
+    - insert.te(): The complexity of this function depends on the length of the TE dict. O(TEn)
+    - copy.te(): This function only contains if/else-statements but uses the insert.te function. This means the complexity is also O(TE)
+    - disable.te(): The complexity is O(1)
+    - active_tes(): This function has a complexity of O(TEn), where TEn is the length of the TE dict.
+    - len() : This function just used len(list), which has the complexity O(1)
+    - str() : This function uses the .join() method which has to go through the entire list. Therefore the complexity is O(n)
+
+LinkedListGenome:
+
+    - Link_element(): O(1)
+    - init(): O(n)
+    - insert.te(): O(n)
+    - copy.te(): O(n)
+    - disable.te(): O(n)
+    - active_tes(): O(n)
+    - len(): O(n)
+    - str(): O(n)  
+
 In `src/simulate.py` you will find a program that can run simulations and tell you actual time it takes to simulate with different implementations. You can use it to test your analysis. You can modify the parameters to the simulator if you want to explore how they affect the running time.
