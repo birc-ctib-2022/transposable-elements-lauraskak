@@ -15,11 +15,14 @@ A genome should be represented as a class that implements the following methods:
 
 ```python
 class Genome(ABC):
-    """Representation of a circular enome."""
+    """Representation of a circular Genome."""
 
     def __init__(self, n: int):
         """Create a genome of size n."""
         ...  # not implemented yet
+
+        
+        
 
     @abstractmethod
     def insert_te(self, pos: int, length: int) -> int:
@@ -92,14 +95,35 @@ class Genome(ABC):
 
 ```
 
-The `ABC` and `@abstractmethod` just means that this class is not something you can use by itself, but that another class must implement the details. In `src/genome.py` you will find templates for a Python list tand a linked list implementation (without the actual implementation, because you have to implement them).
+The `ABC` and `@abstractmethod` just means that this class is not something you can use by itself, but that another class must implement the details. In `src/genome.py` you will find templates for a Python list and a linked list implementation (without the actual implementation, because you have to implement them).
 
-You are free to implement the genome classes however you want, and using whateer auxilary data structures you desire, as long as one uses a Python list with an element for each nucleotide and the other a linked list with a link for each nucleotide. If you want to implement a third (or fourth or fifth...) version, you are very welcome to do so as well.
+You are free to implement the genome classes however you want, and using whatever auxilary data structures you desire, as long as one uses a Python list with an element for each nucleotide and the other a linked list with a link for each nucleotide. If you want to implement a third (or fourth or fifth...) version, you are very welcome to do so as well.
 
 ## Complexity
 
 When you have implemented the two (or more) classes, describe the complexity of each operation as a function of the genome size (at the time of the operation), and the size of the TE involved (and when copying, the offset you are copying). Put the description here:
 
 **FIXME: OPERATION COMPLEXITY**
+
+ListGenome:
+
+    - init(): The complexity is O(1)
+    - insert.te(): The complexity of this function depends on the length of the TE dict. O(TEn)
+    - copy.te(): This function only contains if/else-statements but uses the insert.te function. This means the complexity is also O(TE)
+    - disable.te(): The complexity is O(1)
+    - active_tes(): This function has a complexity of O(TEn), where TEn is the length of the TE dict.
+    - len() : This function just used len(list), which has the complexity O(1)
+    - str() : This function uses the .join() method which has to go through the entire list. Therefore the complexity is O(n)
+
+LinkedListGenome:
+
+    - Link_element(): O(1)
+    - init(): O(n)
+    - insert.te(): O(n)
+    - copy.te(): O(n)
+    - disable.te(): O(n)
+    - active_tes(): O(n)
+    - len(): O(n)
+    - str(): O(n)  
 
 In `src/simulate.py` you will find a program that can run simulations and tell you actual time it takes to simulate with different implementations. You can use it to test your analysis. You can modify the parameters to the simulator if you want to explore how they affect the running time.
